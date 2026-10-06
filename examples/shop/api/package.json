@@ -1,0 +1,1 @@
+{ "name": "tienda-api", "scripts": { "start": "node src/index.js" }, "dependencies": { "express": "^4.19.0" } }

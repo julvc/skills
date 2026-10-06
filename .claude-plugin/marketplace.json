@@ -1,0 +1,17 @@
+{
+  "name": "juliovc",
+  "owner": {
+    "name": "Julio Varas",
+    "url": "https://github.com/julvc"
+  },
+  "description": "Agent skills by Julio Varas.",
+  "plugins": [
+    {
+      "name": "snapdoczilla",
+      "source": "./",
+      "description": "SnapDoczilla: offline docs-as-code for any backend and any frontend. Readers double-click, devs update with one command.",
+      "category": "productivity",
+      "keywords": ["documentation", "docs-as-code", "mkdocs", "mermaid", "offline"]
+    }
+  ]
+}

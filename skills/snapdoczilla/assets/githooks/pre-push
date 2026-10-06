@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# SnapDoczilla: only warns (never blocks the push) when code changed without docs.
+conf=documentation/areas.conf
+[ -f "$conf" ] || exit 0
+grep -v -E '^[[:space:]]*(#|$)' "$conf" | while IFS== read -r area path; do
+  last="$(cat "documentation/.last-sync-$area" 2>/dev/null)" || continue
+  n="$(git rev-list --count "$last"..HEAD -- "$path" ':!documentation' 2>/dev/null || echo 0)"
+  if [ "$n" -gt 0 ]; then
+    echo "Docs reminder ($area): $n commit(s) not documented yet. Run: documentation/update.cmd --$area (or ./documentation/update.sh --$area)" >&2
+  fi
+done
+exit 0

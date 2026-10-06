@@ -1,0 +1,67 @@
+site_name: "Shop"
+docs_dir: source
+site_dir: html
+use_directory_urls: false   # lets html/index.html open with a double click (file://)
+
+validation:                 # with update.sh --strict these fail the build instead of passing silently
+  omitted_files: warn       # a page that is not in nav
+  unrecognized_links: warn
+  absolute_links: warn
+
+theme:
+  name: material
+  language: en
+  features:
+    - content.code.copy     # "copy" button on every code block
+    - content.action.edit   # "edit this page" button (needs repo_url + edit_uri, set by install.sh)
+    - navigation.sections
+  palette:                  # light/dark toggle, starts with the reader's OS preference
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/weather-night
+        name: Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/weather-sunny
+        name: Light mode
+
+plugins:
+  - search
+  - offline   # search works without a server
+
+extra_javascript:
+  - assets/mermaid.min.js   # local copy (downloaded by install.sh): diagrams without internet
+  - assets/diagrams.js
+
+markdown_extensions:
+  - tables
+  - admonition
+  - attr_list
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.snippets:
+      # Embeds REAL repo code on every build:  --8<-- "path/from/repo/root"
+      # Line range:  --8<-- "path:START:END".  The build runs from documentation/.
+      base_path: [".."]
+      check_paths: true      # a moved/deleted file fails the build, naming it
+  - pymdownx.superfences:
+      custom_fences:
+        # class "diagram" (not "mermaid") so Material never tries to load mermaid from the internet
+        - name: mermaid
+          class: diagram
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+nav:
+  - Home: index.md
+  - Getting started: getting-started.md
+  - Architecture: architecture.md
+  - API: api.md
+  - Web components:
+      - ProductCard: web/ProductCard.md
+  - Decisions (ADR):
+      - 0001 Separate API and web packages: adr/0001-separate-api-and-web-packages.md

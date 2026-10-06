@@ -1,0 +1,4 @@
+
+# SnapDoczilla: local venv and temp build dir
+documentation/.venv/
+documentation/.html-new/

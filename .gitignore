@@ -1,0 +1,4 @@
+.venv/
+.html-new/
+__pycache__/
+*.tmp

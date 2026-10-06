@@ -1,0 +1,5 @@
+* text=auto
+*.sh text eol=lf
+pre-push text eol=lf
+*.png binary
+mermaid.min.js -text

@@ -1,0 +1,5 @@
+
+# SnapDoczilla
+documentation/*.sh text eol=lf
+.githooks/* text eol=lf
+documentation/source/assets/mermaid.min.js -text

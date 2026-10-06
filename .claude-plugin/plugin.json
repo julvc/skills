@@ -1,0 +1,15 @@
+{
+  "name": "snapdoczilla",
+  "version": "1.0.0",
+  "description": "SnapDoczilla: offline docs-as-code for any backend and any frontend. Readers double-click, devs update with one command.",
+  "author": {
+    "name": "Julio Varas",
+    "url": "https://github.com/julvc"
+  },
+  "repository": "https://github.com/julvc/skills",
+  "license": "MIT",
+  "keywords": ["documentation", "docs-as-code", "mkdocs", "mermaid", "offline"],
+  "skills": [
+    "./skills/snapdoczilla"
+  ]
+}
