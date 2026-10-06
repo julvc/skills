@@ -1,7 +1,6 @@
 # Skills by Julio Varas
 
 [![skills.sh](https://skills.sh/b/julvc/skills)](https://skills.sh/julvc/skills)
-[![License: PERSONAL](LICENSE)
 [![smoke](https://github.com/julvc/skills/actions/workflows/smoke.yml/badge.svg)](https://github.com/julvc/skills/actions/workflows/smoke.yml)
 
 **English** · [Español](#español)
