@@ -1,7 +1,7 @@
 # Skills by Julio Varas
 
 [![skills.sh](https://skills.sh/b/julvc/skills)](https://skills.sh/julvc/skills)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![License: PERSONAL](LICENSE)
 [![smoke](https://github.com/julvc/skills/actions/workflows/smoke.yml/badge.svg)](https://github.com/julvc/skills/actions/workflows/smoke.yml)
 
 **English** · [Español](#español)
@@ -10,8 +10,8 @@ Agent skills I use on real projects. Small, readable, easy to adapt. They follow
 
 ## Skills
 
-| Skill | What it does |
-|---|---|
+| Skill                                            | What it does                                                                                                                                                                                                                                                                  |
+| ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [**SnapDoczilla**](skills/snapdoczilla/SKILL.md) | Documentation for **any backend and any frontend** as an offline HTML site inside your repo. Anyone reads it with a double click; any dev updates it with one command. Mermaid diagrams, API map, ADRs and react.dev-style component pages with **real code and real usage**. |
 
 <p align="center">
@@ -64,11 +64,11 @@ Agent ids: `claude-code`, `codex`, `opencode`, `antigravity`, `gemini-cli`. Add 
 
 Copy `skills/snapdoczilla/` into your agent's skills folder:
 
-| Agent | Project | Global |
-|---|---|---|
-| Claude Code | `.claude/skills/` | `~/.claude/skills/` |
-| Codex | `.agents/skills/` | `~/.codex/skills/` |
-| OpenCode | `.agents/skills/` | `~/.config/opencode/skills/` |
+| Agent       | Project           | Global                          |
+| ----------- | ----------------- | ------------------------------- |
+| Claude Code | `.claude/skills/` | `~/.claude/skills/`             |
+| Codex       | `.agents/skills/` | `~/.codex/skills/`              |
+| OpenCode    | `.agents/skills/` | `~/.config/opencode/skills/`    |
 | Antigravity | `.agents/skills/` | `~/.gemini/antigravity/skills/` |
 
 </details>
@@ -79,8 +79,8 @@ Copy `skills/snapdoczilla/` into your agent's skills folder:
 
 **Scope.** It documents what lives in the repo, for any stack: Spring, Node (Express/Nest), Python (FastAPI/Django/Flask), .NET, Go, PHP, Ruby; Vue, React, Angular, Svelte.
 
-| Backend | Frontend | Any project |
-|---|---|---|
+| Backend                                                                        | Frontend                                                                                | Any project                     |
+| ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------- | ------------------------------- |
 | Architecture with Mermaid flows, API map by resource, integrations, data model | Screens/routes, `src/` structure, state, component pages (API + real usage + real code) | Overview, getting started, ADRs |
 
 It does **not** take screenshots, run live demos, host anything or replace your OpenAPI/Swagger. Docs are written in the language you choose (English by default).
@@ -116,11 +116,11 @@ On Windows, double-click `documentation\update.cmd`. Only what changed since the
 
 Claude Code is the default. Using another agent? Set `DOCS_LLM`:
 
-| Agent | `DOCS_LLM` |
-|---|---|
-| Codex CLI | `codex exec --full-auto` |
-| OpenCode | `opencode run` |
-| Gemini CLI | `gemini --yolo -p` |
+| Agent      | `DOCS_LLM`               |
+| ---------- | ------------------------ |
+| Codex CLI  | `codex exec --full-auto` |
+| OpenCode   | `opencode run`           |
+| Gemini CLI | `gemini --yolo -p`       |
 
 Or ask your agent *"update the docs"* inside a session. That works with every agent, Antigravity included.
 
@@ -141,13 +141,13 @@ You get what it is, how it works, props/events/slots, a **real usage example** f
 
 They solve different problems. [Docusaurus](https://docusaurus.io) is an engine to build a site you write by hand. SnapDoczilla is a workflow: your agent writes the docs from the code and keeps them in sync.
 
-| | Docusaurus | SnapDoczilla |
-|---|---|---|
-| Who writes | You | Your agent, from the real code |
-| Staying current | Manual | Incremental, per git diff; code embedded from the real files |
-| Read without a server | No | Yes, double-click |
-| Stack | Node, React, MDX | Python only to build; nothing to read |
-| Versions, multi-locale, blog, plugins | Yes | No |
+|                                       | Docusaurus       | SnapDoczilla                                                 |
+| ------------------------------------- | ---------------- | ------------------------------------------------------------ |
+| Who writes                            | You              | Your agent, from the real code                               |
+| Staying current                       | Manual           | Incremental, per git diff; code embedded from the real files |
+| Read without a server                 | No               | Yes, double-click                                            |
+| Stack                                 | Node, React, MDX | Python only to build; nothing to read                        |
+| Versions, multi-locale, blog, plugins | Yes              | No                                                           |
 
 Pick **Docusaurus** for a public product site with versions and many languages. Pick **SnapDoczilla** to make any codebase understandable to your team, today, and keep it that way.
 
@@ -203,7 +203,7 @@ Issues and PRs welcome. Run `bash tests/smoke.sh` before opening a PR. Ideas for
 
 ## License
 
-[MIT](LICENSE) © Julio Varas
+LICENSE © Julio Varas
 
 ---
 
@@ -215,8 +215,8 @@ Skills para agentes que uso en proyectos reales. Pequeñas, legibles y fáciles 
 
 ### Skills
 
-| Skill | Qué hace |
-|---|---|
+| Skill                                            | Qué hace                                                                                                                                                                                                                                                                                                             |
+| ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [**SnapDoczilla**](skills/snapdoczilla/SKILL.md) | Documentación para **cualquier backend y cualquier frontend** como un sitio HTML offline dentro de tu repo. Cualquier persona la lee con doble clic y cualquier dev la actualiza con un comando. Diagramas Mermaid, mapa de la API, ADRs y fichas de componentes al estilo react.dev con **código real y uso real**. |
 
 <p align="center">
@@ -269,11 +269,11 @@ Ids de agentes: `claude-code`, `codex`, `opencode`, `antigravity`, `gemini-cli`.
 
 Copia `skills/snapdoczilla/` en la carpeta de skills de tu agente:
 
-| Agente | Proyecto | Global |
-|---|---|---|
-| Claude Code | `.claude/skills/` | `~/.claude/skills/` |
-| Codex | `.agents/skills/` | `~/.codex/skills/` |
-| OpenCode | `.agents/skills/` | `~/.config/opencode/skills/` |
+| Agente      | Proyecto          | Global                          |
+| ----------- | ----------------- | ------------------------------- |
+| Claude Code | `.claude/skills/` | `~/.claude/skills/`             |
+| Codex       | `.agents/skills/` | `~/.codex/skills/`              |
+| OpenCode    | `.agents/skills/` | `~/.config/opencode/skills/`    |
 | Antigravity | `.agents/skills/` | `~/.gemini/antigravity/skills/` |
 
 </details>
@@ -284,8 +284,8 @@ Copia `skills/snapdoczilla/` en la carpeta de skills de tu agente:
 
 **Alcance.** Documenta lo que está en el repo, en cualquier stack: Spring, Node (Express/Nest), Python (FastAPI/Django/Flask), .NET, Go, PHP, Ruby; Vue, React, Angular, Svelte.
 
-| Backend | Frontend | Cualquier proyecto |
-|---|---|---|
+| Backend                                                                                     | Frontend                                                                                              | Cualquier proyecto            |
+| ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ----------------------------- |
 | Arquitectura con flujos Mermaid, mapa de la API por recurso, integraciones, modelo de datos | Pantallas y rutas, estructura de `src/`, estado, fichas de componentes (API + uso real + código real) | Resumen, primeros pasos, ADRs |
 
 **No** saca capturas, no hace demos vivas, no publica en ningún servidor y no reemplaza tu OpenAPI/Swagger. La documentación se escribe en el idioma que elijas (inglés por defecto; si le hablas al agente en español, la escribe en español).
@@ -321,11 +321,11 @@ En Windows, doble clic en `documentation\update.cmd`. Al agente solo le llega lo
 
 Por defecto usa Claude Code. ¿Usas otro agente? Define `DOCS_LLM`:
 
-| Agente | `DOCS_LLM` |
-|---|---|
-| Codex CLI | `codex exec --full-auto` |
-| OpenCode | `opencode run` |
-| Gemini CLI | `gemini --yolo -p` |
+| Agente     | `DOCS_LLM`               |
+| ---------- | ------------------------ |
+| Codex CLI  | `codex exec --full-auto` |
+| OpenCode   | `opencode run`           |
+| Gemini CLI | `gemini --yolo -p`       |
 
 O pídele a tu agente *"actualiza la documentación"* dentro de una sesión. Funciona con todos, incluido Antigravity.
 
@@ -341,13 +341,13 @@ Obtienes qué es, cómo funciona, props/eventos/slots, un **ejemplo de uso real*
 
 Resuelven problemas distintos. [Docusaurus](https://docusaurus.io) es un motor para construir un sitio que escribes a mano. SnapDoczilla es un flujo de trabajo: tu agente escribe la documentación desde el código y la mantiene sincronizada.
 
-| | Docusaurus | SnapDoczilla |
-|---|---|---|
-| Quién escribe | Tú | Tu agente, desde el código real |
-| Mantenerla al día | A mano | Incremental, por git diff; el código se incluye desde los archivos reales |
-| Leer sin servidor | No | Sí, con doble clic |
-| Stack | Node, React, MDX | Python solo para construir; nada para leer |
-| Versiones, varios idiomas, blog, plugins | Sí | No |
+|                                          | Docusaurus       | SnapDoczilla                                                              |
+| ---------------------------------------- | ---------------- | ------------------------------------------------------------------------- |
+| Quién escribe                            | Tú               | Tu agente, desde el código real                                           |
+| Mantenerla al día                        | A mano           | Incremental, por git diff; el código se incluye desde los archivos reales |
+| Leer sin servidor                        | No               | Sí, con doble clic                                                        |
+| Stack                                    | Node, React, MDX | Python solo para construir; nada para leer                                |
+| Versiones, varios idiomas, blog, plugins | Sí               | No                                                                        |
 
 Elige **Docusaurus** para un sitio público de producto con versiones y varios idiomas. Elige **SnapDoczilla** para que cualquier código sea entendible para tu equipo, hoy, y siga siéndolo.
 
@@ -385,4 +385,4 @@ Issues y PR son bienvenidos. Corre `bash tests/smoke.sh` antes de abrir un PR. I
 
 ### Licencia
 
-[MIT](LICENSE) © Julio Varas
+LICENSE © Julio Varas
