@@ -1,0 +1,22 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.julvc/snapdoczilla",
+  "title": "SnapDoczilla",
+  "description": "Offline docs-as-code for any backend and frontend: a MkDocs site in your repo, by your AI agent.",
+  "repository": {
+    "url": "https://github.com/julvc/skills",
+    "source": "github"
+  },
+  "version": "1.0.0",
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "snapdoczilla-mcp",
+      "version": "1.0.0",
+      "runtimeHint": "uvx",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ]
+}

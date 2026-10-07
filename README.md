@@ -72,6 +72,46 @@ Copy `skills/snapdoczilla/` into your agent's skills folder:
 
 </details>
 
+## MCP server (Claude Desktop, Cursor and any MCP client)
+
+Prefer MCP over skills, or your client has no skills support? SnapDoczilla also ships as a local MCP server (`stdio`, Python). The agent still writes the docs from your code; the server does the deterministic parts: install, "what changed since the last documented commit", safe page writes and the strict build.
+
+```bash
+claude mcp add snapdoczilla -- uvx snapdoczilla-mcp
+```
+
+Claude Desktop, Cursor and other `mcpServers` clients:
+
+```json
+{
+  "mcpServers": {
+    "snapdoczilla": { "command": "uvx", "args": ["snapdoczilla-mcp"] }
+  }
+}
+```
+
+Codex CLI (`~/.codex/config.toml`):
+
+```toml
+[mcp_servers.snapdoczilla]
+command = "uvx"
+args = ["snapdoczilla-mcp"]
+```
+
+Needs `uv`, `git` and `bash` (on Windows: Git for Windows). The server does not read your code: your client does with its own file tools (in Claude Desktop, add a filesystem server). Use the MCP server **or** the skill in a given agent, not both.
+
+| Tool | What it does |
+| --- | --- |
+| `snapdoczilla_status` | Installed? Areas, commits not yet documented, pages, next ADR number, suggested next step |
+| `snapdoczilla_install` | Scaffolds `documentation/`, writes `areas.conf`, downloads Mermaid once |
+| `snapdoczilla_get_rules` | The rules the pages must follow (language, never invent, embed real code) |
+| `snapdoczilla_changes_since_sync` | Files and commits of an area since its last documented commit |
+| `snapdoczilla_write_page` | Writes one page, confined to `documentation/source/`, and adds it to `nav` |
+| `snapdoczilla_build_html` | Strict MkDocs build; a failed build keeps the previous site |
+| `snapdoczilla_mark_synced` | Records HEAD as the last documented commit of an area |
+
+It also exposes the prompt `document_project`. Then just ask: *"Document this project"*.
+
 ## SnapDoczilla: step by step
 
 **What you get:** a `documentation/` folder in your repo. Anyone opens `documentation/html/index.html` with a double click: search and diagrams included, no install, no internet. Docs can't drift from code: pages embed the real source files on every build. See a full result in [`examples/shop`](examples/shop) (an Express API + React app; download the repo and open `examples/shop/documentation/html/index.html`).
@@ -276,6 +316,46 @@ Copia `skills/snapdoczilla/` en la carpeta de skills de tu agente:
 | Antigravity | `.agents/skills/` | `~/.gemini/antigravity/skills/` |
 
 </details>
+
+### Servidor MCP (Claude Desktop, Cursor y cualquier cliente MCP)
+
+¿Prefieres MCP a las skills, o tu cliente no las soporta? SnapDoczilla también se publica como servidor MCP local (`stdio`, Python). El agente sigue escribiendo la documentación desde tu código; el servidor hace lo determinista: instalar, "qué cambió desde el último commit documentado", escribir páginas de forma segura y el build estricto.
+
+```bash
+claude mcp add snapdoczilla -- uvx snapdoczilla-mcp
+```
+
+Claude Desktop, Cursor y otros clientes con `mcpServers`:
+
+```json
+{
+  "mcpServers": {
+    "snapdoczilla": { "command": "uvx", "args": ["snapdoczilla-mcp"] }
+  }
+}
+```
+
+Codex CLI (`~/.codex/config.toml`):
+
+```toml
+[mcp_servers.snapdoczilla]
+command = "uvx"
+args = ["snapdoczilla-mcp"]
+```
+
+Requiere `uv`, `git` y `bash` (en Windows: Git for Windows). El servidor no lee tu código: lo hace tu cliente con sus propias herramientas de archivos (en Claude Desktop, agrega un servidor de filesystem). En cada agente usa el servidor MCP **o** la skill, no ambos.
+
+| Herramienta | Qué hace |
+| --- | --- |
+| `snapdoczilla_status` | ¿Instalada? Áreas, commits sin documentar, páginas, próximo número de ADR y siguiente paso sugerido |
+| `snapdoczilla_install` | Crea `documentation/`, escribe `areas.conf` y descarga Mermaid una vez |
+| `snapdoczilla_get_rules` | Las reglas que deben seguir las páginas (idioma, no inventar, código real) |
+| `snapdoczilla_changes_since_sync` | Archivos y commits de un área desde su último commit documentado |
+| `snapdoczilla_write_page` | Escribe una página, limitada a `documentation/source/`, y la agrega al `nav` |
+| `snapdoczilla_build_html` | Build estricto de MkDocs; si falla, se conserva el sitio anterior |
+| `snapdoczilla_mark_synced` | Registra HEAD como último commit documentado de un área |
+
+También expone el prompt `document_project`. Después solo pide: *"Documenta este proyecto"*.
 
 ### SnapDoczilla: paso a paso
 

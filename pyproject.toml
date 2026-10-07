@@ -1,0 +1,43 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "snapdoczilla-mcp"
+dynamic = ["version"]
+description = "MCP server for SnapDoczilla: offline docs-as-code (MkDocs + Mermaid) for any backend and frontend, written by your AI agent."
+readme = "PYPI.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Julio Varas Contreras", email = "jvarascontreras@gmail.com" }]
+keywords = ["mcp", "model-context-protocol", "documentation", "docs-as-code", "mkdocs", "mermaid", "adr", "offline", "ai-agents"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Topic :: Software Development :: Documentation",
+]
+dependencies = ["mcp>=2.0,<3"]
+
+[project.scripts]
+snapdoczilla-mcp = "snapdoczilla_mcp.server:main"
+
+[project.urls]
+Homepage = "https://github.com/julvc/skills"
+Repository = "https://github.com/julvc/skills"
+Issues = "https://github.com/julvc/skills/issues"
+
+[tool.hatch.version]
+path = "src/snapdoczilla_mcp/__init__.py"
+
+# The skill folder stays the single source of truth; the wheel carries a copy of it.
+[tool.hatch.build.targets.wheel]
+packages = ["src/snapdoczilla_mcp"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"skills/snapdoczilla" = "snapdoczilla_mcp/skill"
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "skills/snapdoczilla", "tests/mcp_smoke.py", "PYPI.md", "LICENSE", "server.json"]

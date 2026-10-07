@@ -2,3 +2,8 @@
 .html-new/
 __pycache__/
 *.tmp
+
+# Python packaging
+dist/
+build/
+*.egg-info/

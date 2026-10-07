@@ -14,3 +14,34 @@ jobs:
         run: python -m json.tool .claude-plugin/plugin.json >/dev/null && python -m json.tool .claude-plugin/marketplace.json >/dev/null
       - name: SnapDoczilla end to end
         run: bash tests/smoke.sh
+  mcp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Registry metadata is consistent
+        run: |
+          python - <<'PY'
+          import json, re
+          s = json.load(open("server.json"))
+          v = re.search(r'__version__ = "([^"]+)"', open("src/snapdoczilla_mcp/__init__.py").read()).group(1)
+          assert len(s["description"]) <= 100, "server.json description must be <= 100 chars"
+          assert s["version"] == v == s["packages"][0]["version"], f"versions differ: {s['version']} / {v}"
+          assert "mcp-name: " + s["name"] in open("PYPI.md").read(), "PYPI.md must carry the mcp-name marker"
+          PY
+      - name: Wheel builds and carries the skill files
+        run: |
+          pip install build
+          python -m build
+          python - <<'PY'
+          import glob, zipfile
+          names = zipfile.ZipFile(glob.glob("dist/*.whl")[0]).namelist()
+          for need in ("snapdoczilla_mcp/skill/scripts/install.sh", "snapdoczilla_mcp/skill/assets/documentation/update.sh"):
+              assert need in names, f"{need} missing from wheel"
+          PY
+      - name: MCP server end to end (real MkDocs build)
+        run: |
+          pip install dist/*.whl
+          SNAPDOCZILLA_USE_INSTALLED=1 SNAPDOCZILLA_TEST_BUILD=1 python tests/mcp_smoke.py
