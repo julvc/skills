@@ -7,6 +7,9 @@ Offline **docs-as-code** for any backend and any frontend, driven by your AI age
 API map and component pages with **real code and real usage**) that anyone opens with a double click and any dev
 refreshes with one command.
 
+Working under CMMI? Install with `profile: "cmmi"` to add a process-evidence page (practice areas → repo evidence),
+DAR-style ADRs, a requirement → code → tests traceability matrix and release baselines.
+
 This MCP server gives your agent the deterministic half of that workflow. **The agent writes the docs from your
 code; the server installs, tracks what changed since the last documented commit, writes pages safely, and builds the site.**
 

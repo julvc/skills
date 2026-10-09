@@ -196,13 +196,16 @@ def status(repo_path: str) -> dict[str, Any]:
 
 
 def install(repo_path: str, project_name: str, language: str = "en",
-            areas: dict[str, str] | None = None, ui_areas: list[str] | None = None) -> dict[str, Any]:
+            areas: dict[str, str] | None = None, ui_areas: list[str] | None = None,
+            profile: str = "standard") -> dict[str, Any]:
     repo = resolve_repo(repo_path)
     name = (project_name or "").strip()
     if not name or any(ord(c) < 32 for c in name) or '"' in name:
         raise SnapDoczillaError('project_name must be non-empty, single-line, and contain no double quotes.')
     if not LANG_RE.match(language or ""):
         raise SnapDoczillaError("language must be a code such as 'en' or 'es'.")
+    if profile not in ("standard", "cmmi"):
+        raise SnapDoczillaError("profile must be 'standard' or 'cmmi'.")
     if _installed(repo):
         raise SnapDoczillaError("SnapDoczilla is already installed here. Nothing was changed.")
     if _doc(repo).exists():
@@ -220,7 +223,7 @@ def install(repo_path: str, project_name: str, language: str = "en",
     # install.sh substitutes the name through sed with '|' as delimiter: escape sed's specials.
     sed_safe = name.replace("\\", "\\\\").replace("&", "\\&").replace("|", "\\|")
     script = (skill_dir() / "scripts" / "install.sh").as_posix()
-    rc, out = _run([bash_exe(), script, repo.as_posix(), sed_safe, language], timeout=180)
+    rc, out = _run([bash_exe(), script, repo.as_posix(), sed_safe, language, profile], timeout=180)
     if rc != 0:
         raise SnapDoczillaError(f"install.sh failed (exit {rc}):\n{_tail(out)}")
 

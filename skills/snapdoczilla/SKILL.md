@@ -1,6 +1,6 @@
 ---
 name: snapdoczilla
-description: SnapDoczilla - sets up and maintains technical documentation for any repository (any backend, any frontend) as a 100% offline HTML site that lives inside the repo - no Confluence, no servers, no CI. Readers double-click documentation/html/index.html; any dev refreshes it with one command. Built with MkDocs Material, local Mermaid diagrams and react.dev-style component pages that embed real source code and real usage. Use it whenever the user wants to document a project or codebase, set up "docs as code", generate or update architecture/API/ADR/onboarding docs, document frontend components, or asks to "document this project" / "documenta este proyecto" / "actualiza la documentación" - even if they don't name SnapDoczilla or MkDocs. Also use it when a repo already has documentation/update.sh and the user asks to update the docs.
+description: SnapDoczilla - sets up and maintains technical documentation for any repository (any backend, any frontend) as a 100% offline HTML site that lives inside the repo - no Confluence, no servers, no CI. Readers double-click documentation/html/index.html; any dev refreshes it with one command. Built with MkDocs Material, local Mermaid diagrams and react.dev-style component pages that embed real source code and real usage. Use it whenever the user wants to document a project or codebase, set up "docs as code", generate or update architecture/API/ADR/onboarding docs, document frontend components, or asks to "document this project" / "documenta este proyecto" / "actualiza la documentación" - even if they don't name SnapDoczilla or MkDocs. Has a CMMI profile (process evidence, DAR-style ADRs, traceability, baselines) for teams that work under CMMI or prepare an appraisal. Also use it when a repo already has documentation/update.sh and the user asks to update the docs.
 ---
 
 # SnapDoczilla
@@ -55,21 +55,22 @@ If the repo already has a `documentation/` folder that was **not** made by SnapD
 1. **Check prerequisites** — report what's missing, never install anything global: `git` (must be a git repo), `python3`/`python`, `bash` (on Windows it ships with Git for Windows). An agent CLI (`claude`, `codex`, `opencode`…) is only needed for one-command updates later; `--html-only` works without it.
 2. **Detect areas.** Look for `backend/`, `frontend/`, `api/`, `web/`, `apps/*`, `packages/*`, `src/`. One block → a single area `code=.`. Clearly separate parts → one area each (`back=backend/`, `front=frontend/`). Ask only if the split is not evident.
 3. **Pick the docs language:** the language the user is writing in, unless they ask for another (`en`, `es`, …).
-4. **Run the installer** (copies templates, downloads Mermaid once, adds `.gitignore`/`.gitattributes` lines; refuses to overwrite an existing install):
+4. **Pick the profile:** `standard` (default) or `cmmi` when the user or their organization works under CMMI (mentions CMMI, appraisal, maturity level, process evidence, traceability). See **CMMI profile** below.
+5. **Run the installer** (copies templates, downloads Mermaid once, adds `.gitignore`/`.gitattributes` lines; refuses to overwrite an existing install):
    ```bash
-   bash "$SKILL_DIR/scripts/install.sh" "<repo-root>" "<Project name>" <lang>
+   bash "$SKILL_DIR/scripts/install.sh" "<repo-root>" "<Project name>" <lang> [standard|cmmi]
    ```
-5. **Write `documentation/areas.conf`** with the detected areas (`name=path`).
-6. **UI areas:** copy `documentation/AGENT-RULES-COMPONENTS.md` to `documentation/AGENT-RULES-<area>.md` (e.g. `AGENT-RULES-front.md`); per-area rules are picked up automatically. No UI area → delete the template.
-7. **Generate the first content** in `documentation/source/`, following `AGENT-RULES.md` (and each area's rules) and the Scope table above. For UI areas, write 2–3 component pages for representative components (ask which, or pick the most reused). Read real code; don't invent. Add every page to `nav:` in `mkdocs.yml`.
-8. **Existing docs** (md, docx, pdf) are context for the *why*, never a substitute for reading code. Convert docx/pdf to Markdown before reading, and never copy secrets or tokens they may contain.
-9. **Mark sync:** for each area, `git rev-parse HEAD > documentation/.last-sync-<area>`.
-10. **Build and verify:**
+6. **Write `documentation/areas.conf`** with the detected areas (`name=path`).
+7. **UI areas:** copy `documentation/AGENT-RULES-COMPONENTS.md` to `documentation/AGENT-RULES-<area>.md` (e.g. `AGENT-RULES-front.md`); per-area rules are picked up automatically. No UI area → delete the template.
+8. **Generate the first content** in `documentation/source/`, following `AGENT-RULES.md` (and each area's rules) and the Scope table above. For UI areas, write 2–3 component pages for representative components (ask which, or pick the most reused). Read real code; don't invent. Add every page to `nav:` in `mkdocs.yml`.
+9. **Existing docs** (md, docx, pdf) are context for the *why*, never a substitute for reading code. Convert docx/pdf to Markdown before reading, and never copy secrets or tokens they may contain.
+10. **Mark sync:** for each area, `git rev-parse HEAD > documentation/.last-sync-<area>`.
+11. **Build and verify:**
     ```bash
     bash documentation/update.sh --html-only
     ```
     First build installs MkDocs into `documentation/.venv` (1–2 min, needs internet). `snippet ... could not be found` → fix that path. If Chrome/Edge is available, open `html/architecture.html` headless with `--allow-file-access-from-files --dump-dom` and check there are more `<svg` than on a page without diagrams (Material adds ~7 icons).
-11. **Hand over** a short summary: what was created, how to read it, how to update it (below), what is flagged as to be confirmed. **Do not commit or push** — that is the user's call.
+12. **Hand over** a short summary: what was created, how to read it, how to update it (below), what is flagged as to be confirmed. **Do not commit or push** — that is the user's call.
 
 ## B. Update
 
@@ -90,6 +91,15 @@ If the repo already has a `documentation/` folder that was **not** made by SnapD
 ## C. Component page
 
 Follow `AGENT-RULES-COMPONENTS.md`: what it is → how it works → API → **real usage example** → **real source code** → things to know. Read the component *and* its real consumers; the usage example comes from an existing screen (if none exists, label it as illustrative). Incomplete component (empty files, `console.log`, commented-out code) → say so in a `!!! warning` block. Add the page to `nav:`.
+
+## CMMI profile
+
+For teams working under [CMMI](https://cmmiinstitute.com/cmmi/intro-3). Same skill, same flows; the profile only adds:
+
+- `source/process-evidence.md`: practice area → evidence in the repo (TS, DAR, PI, RDM, VV, PR, CM, PQA, OT, PAD), a Requirement → Code → Tests → Page traceability matrix, and a baselines table per release tag.
+- A **CMMI profile** section appended to `AGENT-RULES.md`: DAR-style ADRs (criteria + at least two alternatives), traceability only from real requirement IDs, baselines on tags, never claiming reviews or compliance.
+
+The docs are *evidence that supports* an appraisal, not the appraisal. Planning, estimating, risk, supplier and governance areas live in project-management tools; link them, don't simulate them here. Switching an existing standard install to CMMI: copy `assets/cmmi/source/process-evidence.md` into `source/`, add it to `nav:`, and append `assets/cmmi/AGENT-RULES-CMMI.md` to `AGENT-RULES.md`.
 
 ## Good to know
 

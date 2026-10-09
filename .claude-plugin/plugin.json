@@ -1,6 +1,6 @@
 {
   "name": "snapdoczilla",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "SnapDoczilla: offline docs-as-code for any backend and any frontend. Readers double-click, devs update with one command.",
   "author": {
     "name": "Julio Varas",

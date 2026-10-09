@@ -171,6 +171,14 @@ Add a SnapDoczilla page for the Button component
 
 You get what it is, how it works, props/events/slots, a **real usage example** from your app and the **real source code**.
 
+### 7. Working under CMMI? Use the `cmmi` profile
+
+```
+Document this project with SnapDoczilla using the CMMI profile
+```
+
+Same flows, plus a **Process evidence** page that maps [CMMI](https://cmmiinstitute.com/cmmi/intro-3) practice areas (TS, DAR, PI, RDM, VV, PR, CM, PQA, OT, PAD) to the evidence in your repo, a *Requirement → Code → Tests → Page* traceability matrix and a baselines table per release tag. ADRs follow DAR (criteria + alternatives). Requirement IDs come only from real commits, branches or issues. The docs support an appraisal; they never claim compliance. Script: `install.sh <repo> "<Name>" <lang> cmmi`. MCP: `snapdoczilla_install` with `profile: "cmmi"`.
+
 <p align="center">
   <img src="assets/preview-architecture-dark.png" alt="Architecture page in dark mode with a Mermaid diagram" width="760"><br>
   <em>Architecture page, dark mode, diagram rendered offline.</em>
@@ -415,6 +423,14 @@ Agrega una ficha de SnapDoczilla para el componente Boton
 ```
 
 Obtienes qué es, cómo funciona, props/eventos/slots, un **ejemplo de uso real** de tu aplicación y el **código fuente real**.
+
+#### 7. ¿Trabajas con CMMI? Usa el perfil `cmmi`
+
+```
+Documenta este proyecto con SnapDoczilla usando el perfil CMMI
+```
+
+Los mismos flujos, más una página de **Evidencia de proceso** que mapea las áreas de práctica de [CMMI](https://cmmiinstitute.com/cmmi/intro-3) (TS, DAR, PI, RDM, VV, PR, CM, PQA, OT, PAD) a la evidencia en tu repo, una matriz de trazabilidad *Requisito → Código → Tests → Página* y una tabla de baselines por tag de release. Los ADR siguen DAR (criterios + alternativas). Los IDs de requisitos salen solo de commits, ramas o issues reales. La documentación apoya un appraisal; nunca declara cumplimiento. Script: `install.sh <repo> "<Nombre>" <lang> cmmi`. MCP: `snapdoczilla_install` con `profile: "cmmi"`.
 
 ### ¿SnapDoczilla o Docusaurus?
 

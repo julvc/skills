@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # SnapDoczilla installer: sets up the offline documentation system in a repo.
-# Usage: install.sh <repo-root> "<Project name>" [language: en|es|...]   (default: en)
+# Usage: install.sh <repo-root> "<Project name>" [language: en|es|...] [profile: standard|cmmi]
+#        (defaults: en, standard). "cmmi" adds the process-evidence page and CMMI rules.
 # Never overwrites an existing documentation/mkdocs.yml or .githooks/pre-push.
 set -euo pipefail
 
@@ -8,6 +9,8 @@ SKILL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 REPO="${1:?Usage: install.sh <repo-root> \"<Project name>\" [en|es|...]}"
 NAME="${2:?Missing project name}"
 LANG_CODE="${3:-en}"
+PROFILE="${4:-standard}"
+case "$PROFILE" in standard|cmmi) ;; *) echo "ERROR: profile must be standard or cmmi"; exit 1 ;; esac
 case "$LANG_CODE" in en) LANGUAGE="English" ;; es) LANGUAGE="Spanish (español)" ;; *) LANGUAGE="$LANG_CODE" ;; esac
 DEST="$REPO/documentation"
 
@@ -23,6 +26,14 @@ chmod +x "$DEST/update.sh" "$REPO/.githooks/pre-push"
 for f in "$DEST/mkdocs.yml" "$DEST/source/index.md" "$DEST/AGENT-RULES.md"; do
   sed -e "s|{{PROJECT}}|$NAME|g" -e "s|{{LANG}}|$LANG_CODE|g" -e "s|{{LANGUAGE}}|$LANGUAGE|g" "$f" > "$f.tmp" && mv "$f.tmp" "$f"
 done
+
+# CMMI profile: extra rules appended (every reader of AGENT-RULES.md gets them) + evidence page in nav
+if [ "$PROFILE" = cmmi ]; then
+  cat "$SKILL_DIR/assets/cmmi/AGENT-RULES-CMMI.md" >> "$DEST/AGENT-RULES.md"
+  cp "$SKILL_DIR/assets/cmmi/source/process-evidence.md" "$DEST/source/"
+  printf '  - Process evidence: process-evidence.md
+' >> "$DEST/mkdocs.yml"
+fi
 
 # "edit this page" button: derive the web URL from the git remote (GitHub/GitLab; others skipped)
 REMOTE="$(git -C "$REPO" remote get-url origin 2>/dev/null || true)"
@@ -50,4 +61,4 @@ if ! curl -fsSL -o "$MERMAID" "https://cdn.jsdelivr.net/npm/mermaid@11/dist/merm
   echo "WARNING: could not download Mermaid. Save https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js as $MERMAID"
 fi
 
-echo "SnapDoczilla installed in $DEST"
+echo "SnapDoczilla installed in $DEST (profile: $PROFILE)"

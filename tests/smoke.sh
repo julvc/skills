@@ -65,4 +65,14 @@ git rev-parse HEAD > documentation/.last-sync-code
 echo '// change' >> src/sum.js; git add -A; git commit -qm change
 bash .githooks/pre-push 2>&1 | grep -q 'Docs reminder (code): 1' || fail "hook reminder"
 
+echo "6. cmmi profile"
+C="$(mktemp -d)"; git -C "$C" init -q
+bash "$HERE/skills/snapdoczilla/scripts/install.sh" "$C" "Cmmi" es nope >/dev/null 2>&1 && fail "bad profile must fail"
+bash "$HERE/skills/snapdoczilla/scripts/install.sh" "$C" "Cmmi" es cmmi >/dev/null
+grep -q '## CMMI profile' "$C/documentation/AGENT-RULES.md" || fail "cmmi rules"
+grep -q '  - Process evidence: process-evidence.md' "$C/documentation/mkdocs.yml" || fail "cmmi nav"
+(cd "$C" && build) || fail "cmmi build"
+[ -f "$C/documentation/html/process-evidence.html" ] || fail "cmmi page"
+rm -rf "$C"
+
 echo "All smoke checks passed"
