@@ -179,6 +179,14 @@ Document this project with SnapDoczilla using the CMMI profile
 
 Same flows, plus a **Process evidence** page that maps [CMMI](https://cmmiinstitute.com/cmmi/intro-3) practice areas (TS, DAR, PI, RDM, VV, PR, CM, PQA, OT, PAD) to the evidence in your repo, a *Requirement → Code → Tests → Page* traceability matrix and a baselines table per release tag. ADRs follow DAR (criteria + alternatives). Requirement IDs come only from real commits, branches or issues. The docs support an appraisal; they never claim compliance. Script: `install.sh <repo> "<Name>" <lang> cmmi`. MCP: `snapdoczilla_install` with `profile: "cmmi"`.
 
+### 8. Need a user manual? Add it on any profile
+
+```
+Write the user manual for this app with SnapDoczilla
+```
+
+Adds a **User manual** section for the people who use the app: requirements, first steps, a screen map and one page per function with numbered steps, the exact button and field labels, the expected result and a *Message → Cause → What to do* table built from the real messages in the UI code. Screenshots are left as placeholders (`img/<function>-NN.png`) for a human to capture. With the `cmmi` profile the manual is also referenced as OT/VV evidence. Script: `add-manual.sh <repo>`. MCP: `snapdoczilla_add_manual`.
+
 <p align="center">
   <img src="assets/preview-architecture-dark.png" alt="Architecture page in dark mode with a Mermaid diagram" width="760"><br>
   <em>Architecture page, dark mode, diagram rendered offline.</em>
@@ -431,6 +439,14 @@ Documenta este proyecto con SnapDoczilla usando el perfil CMMI
 ```
 
 Los mismos flujos, más una página de **Evidencia de proceso** que mapea las áreas de práctica de [CMMI](https://cmmiinstitute.com/cmmi/intro-3) (TS, DAR, PI, RDM, VV, PR, CM, PQA, OT, PAD) a la evidencia en tu repo, una matriz de trazabilidad *Requisito → Código → Tests → Página* y una tabla de baselines por tag de release. Los ADR siguen DAR (criterios + alternativas). Los IDs de requisitos salen solo de commits, ramas o issues reales. La documentación apoya un appraisal; nunca declara cumplimiento. Script: `install.sh <repo> "<Nombre>" <lang> cmmi`. MCP: `snapdoczilla_install` con `profile: "cmmi"`.
+
+#### 8. ¿Necesitas un manual de usuario? Agrégalo en cualquier perfil
+
+```
+Escribe el manual de usuario de esta aplicación con SnapDoczilla
+```
+
+Agrega una sección **Manual de usuario** para quienes usan la aplicación: requisitos, primeros pasos, un mapa de pantallas y una página por función con pasos numerados, los nombres exactos de botones y campos, el resultado esperado y una tabla *Mensaje → Causa → Qué hacer* construida con los mensajes reales del código de la interfaz. Las capturas quedan como marcadores (`img/<funcion>-NN.png`) para que una persona las tome. Con el perfil `cmmi` el manual también se referencia como evidencia de OT/VV. Script: `add-manual.sh <repo>`. MCP: `snapdoczilla_add_manual`.
 
 ### ¿SnapDoczilla o Docusaurus?
 

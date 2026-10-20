@@ -1,6 +1,6 @@
 ---
 name: snapdoczilla
-description: SnapDoczilla - sets up and maintains technical documentation for any repository (any backend, any frontend) as a 100% offline HTML site that lives inside the repo - no Confluence, no servers, no CI. Readers double-click documentation/html/index.html; any dev refreshes it with one command. Built with MkDocs Material, local Mermaid diagrams and react.dev-style component pages that embed real source code and real usage. Use it whenever the user wants to document a project or codebase, set up "docs as code", generate or update architecture/API/ADR/onboarding docs, document frontend components, or asks to "document this project" / "documenta este proyecto" / "actualiza la documentación" - even if they don't name SnapDoczilla or MkDocs. Has a CMMI profile (process evidence, DAR-style ADRs, traceability, baselines) for teams that work under CMMI or prepare an appraisal. Also use it when a repo already has documentation/update.sh and the user asks to update the docs.
+description: SnapDoczilla - sets up and maintains technical documentation for any repository (any backend, any frontend) as a 100% offline HTML site that lives inside the repo - no Confluence, no servers, no CI. Readers double-click documentation/html/index.html; any dev refreshes it with one command. Built with MkDocs Material, local Mermaid diagrams and react.dev-style component pages that embed real source code and real usage. Use it whenever the user wants to document a project or codebase, set up "docs as code", generate or update architecture/API/ADR/onboarding docs, document frontend components, or asks to "document this project" / "documenta este proyecto" / "actualiza la documentación" - even if they don't name SnapDoczilla or MkDocs. Has a CMMI profile (process evidence, DAR-style ADRs, traceability, baselines) for teams that work under CMMI or prepare an appraisal. Also writes end-user manuals (step-by-step guides per function, taken from the real UI) on any profile: use it when the user asks for a "user manual", "manual de usuario", "end-user guide" or "guía de uso" of an app. Also use it when a repo already has documentation/update.sh and the user asks to update the docs.
 ---
 
 # SnapDoczilla
@@ -18,6 +18,7 @@ Leaves a documentation system in the repo that **anyone reads with a double clic
 | Any project | `index.md` (what it is, stack, versions), `getting-started.md` (requirements, run, test), `adr/0001-*.md` | build files, README, config |
 | Backend | `architecture.md` (layers, integrations, main flows in Mermaid), `api.md` (endpoints grouped by resource), data model if there is one | routes/controllers, services, clients, migrations/schemas |
 | Frontend | screen/route map, `src/` structure, state management, **component pages** (what it is, props/events/slots, real usage, real code) | router, views/pages, components, stores |
+| End users (optional) | `user-manual/` (flow D): requirements, first steps, one step-by-step page per function, messages and fixes | screens, labels, validations and messages in the UI code |
 
 Where to look, by stack (not exhaustive — read whatever the repo actually uses):
 
@@ -30,7 +31,7 @@ Where to look, by stack (not exhaustive — read whatever the repo actually uses
 | Go / PHP / Ruby | `http.HandleFunc`/router libs, `routes/*.php`, `config/routes.rb` | `go.mod`, `composer.json`, `Gemfile` |
 | Vue / React / Angular / Svelte | `router/`, `app/` or `pages/` dirs, `*.routes.ts` | `package.json`, `vite.config.*`, `angular.json` |
 
-**What it deliberately does not do:** screenshots or live demos (they force running the app and go stale on their own), hosting or publishing, replacing OpenAPI/Swagger (it links to it), inventing behavior the code doesn't show.
+**What it deliberately does not do:** take screenshots or live demos (they force running the app and go stale on their own; the user manual leaves placeholders a human fills), hosting or publishing, replacing OpenAPI/Swagger (it links to it), inventing behavior the code doesn't show.
 
 ## Why it's designed this way
 
@@ -47,6 +48,7 @@ Where to look, by stack (not exhaustive — read whatever the repo actually uses
 | No `documentation/mkdocs.yml` yet and the user wants docs | **A. Install** |
 | `documentation/` exists and they want it refreshed | **B. Update** |
 | They want one component documented | **C. Component page** |
+| They want a user manual / end-user guide | **D. User manual** (install first if needed, any profile) |
 
 If the repo already has a `documentation/` folder that was **not** made by SnapDoczilla (no `mkdocs.yml` + `update.sh`), stop and ask before touching it.
 
@@ -91,6 +93,21 @@ If the repo already has a `documentation/` folder that was **not** made by SnapD
 ## C. Component page
 
 Follow `AGENT-RULES-COMPONENTS.md`: what it is → how it works → API → **real usage example** → **real source code** → things to know. Read the component *and* its real consumers; the usage example comes from an existing screen (if none exists, label it as illustrative). Incomplete component (empty files, `console.log`, commented-out code) → say so in a `!!! warning` block. Add the page to `nav:`.
+
+## D. User manual
+
+For the people who **use** the app, not the ones who build it. Works on `standard` and `cmmi` installs.
+
+1. Not installed yet → run **A** first (the base pages can stay minimal if the technical docs live elsewhere).
+2. Add the manual (copies `AGENT-RULES-MANUAL.md` and `source/user-manual/index.md`, adds the *User manual* section to `nav:`, points `AGENT-RULES.md` to the new rules; refuses if it already exists):
+   ```bash
+   bash "$SKILL_DIR/scripts/add-manual.sh" "<repo-root>"
+   ```
+3. **Inventory the functions** from the UI code: navigation (menu, router, tabs), then per screen its fields, buttons, validations and the exact messages it shows (toasts, alerts, confirms). Existing requirements or CMMI docs say what each function is *for*; the code says what it *does*.
+4. Write `user-manual/index.md` and one page per function following `AGENT-RULES-MANUAL.md` (steps with exact labels in **bold**, expected result, *Message → Cause → What to do*). Add each page to `nav:` under *User manual*.
+5. Screenshots: list the pending ones (placeholders) in the hand-over so a human captures them into `source/user-manual/img/`.
+6. CMMI install → also reference the manual in `process-evidence.md` (OT, VV), as the rules say.
+7. Build (`update.sh --html-only`), fix every problem, hand over. Readers who need a PDF print the pages from the browser.
 
 ## CMMI profile
 

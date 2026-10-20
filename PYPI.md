@@ -54,6 +54,7 @@ Codex have them; in Claude Desktop add a filesystem server).
 |---|---|
 | `snapdoczilla_status` | Installed? Areas, commits not yet documented per area, existing pages, next ADR number, suggested next step. Start here. |
 | `snapdoczilla_install` | Scaffolds `documentation/` (templates, update script, pre-push reminder), writes `areas.conf`, downloads Mermaid once. Refuses to touch a `documentation/` it did not create. |
+| `snapdoczilla_add_manual` | Adds an end-user manual (`user-manual/` section in `nav`, manual rules: steps, exact UI labels, messages, screenshot placeholders) to an install of any profile. |
 | `snapdoczilla_get_rules` | Returns the rules the pages must follow (language, never invent, embed real code). |
 | `snapdoczilla_changes_since_sync` | Files, commits and diffstat of an area since its last documented commit, so only affected pages are updated. |
 | `snapdoczilla_write_page` | Creates or overwrites one Markdown page, confined to `documentation/source/`, and adds it to `nav`. |
