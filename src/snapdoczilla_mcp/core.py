@@ -196,13 +196,16 @@ def status(repo_path: str) -> dict[str, Any]:
 
 
 def install(repo_path: str, project_name: str, language: str = "en",
-            areas: dict[str, str] | None = None, ui_areas: list[str] | None = None) -> dict[str, Any]:
+            areas: dict[str, str] | None = None, ui_areas: list[str] | None = None,
+            profile: str = "standard") -> dict[str, Any]:
     repo = resolve_repo(repo_path)
     name = (project_name or "").strip()
     if not name or any(ord(c) < 32 for c in name) or '"' in name:
         raise SnapDoczillaError('project_name must be non-empty, single-line, and contain no double quotes.')
     if not LANG_RE.match(language or ""):
         raise SnapDoczillaError("language must be a code such as 'en' or 'es'.")
+    if profile not in ("standard", "cmmi"):
+        raise SnapDoczillaError("profile must be 'standard' or 'cmmi'.")
     if _installed(repo):
         raise SnapDoczillaError("SnapDoczilla is already installed here. Nothing was changed.")
     if _doc(repo).exists():
@@ -220,7 +223,7 @@ def install(repo_path: str, project_name: str, language: str = "en",
     # install.sh substitutes the name through sed with '|' as delimiter: escape sed's specials.
     sed_safe = name.replace("\\", "\\\\").replace("&", "\\&").replace("|", "\\|")
     script = (skill_dir() / "scripts" / "install.sh").as_posix()
-    rc, out = _run([bash_exe(), script, repo.as_posix(), sed_safe, language], timeout=180)
+    rc, out = _run([bash_exe(), script, repo.as_posix(), sed_safe, language, profile], timeout=180)
     if rc != 0:
         raise SnapDoczillaError(f"install.sh failed (exit {rc}):\n{_tail(out)}")
 
@@ -266,13 +269,29 @@ def _validate_areas(repo: Path, areas: dict[str, str]) -> dict[str, str]:
 def get_rules(repo_path: str, area: str | None = None) -> dict[str, Any]:
     repo = resolve_repo(repo_path)
     doc = _require_installed(repo)
-    names = ["AGENT-RULES.md"]
+    names = ["AGENT-RULES.md", "AGENT-RULES-MANUAL.md"]  # the manual rules only exist after add_manual
     if area:
         _area_path(doc, area)
         extra = f"AGENT-RULES-{area}.md"
         if (doc / extra).is_file():
             names.append(extra)
     return {"rules": {n: (doc / n).read_text(encoding="utf-8") for n in names if (doc / n).is_file()}}
+
+
+def add_manual(repo_path: str) -> dict[str, Any]:
+    repo = resolve_repo(repo_path)
+    _require_installed(repo)
+    script = (skill_dir() / "scripts" / "add-manual.sh").as_posix()
+    rc, out = _run([bash_exe(), script, repo.as_posix()])
+    if rc != 0:
+        raise SnapDoczillaError(f"add-manual.sh failed (exit {rc}):\n{_tail(out)}")
+    return {
+        "added": True,
+        "manual_dir": str(_doc(repo) / "source" / "user-manual"),
+        "next_step": "Call snapdoczilla_get_rules and follow AGENT-RULES-MANUAL.md: read the UI code, rewrite "
+                     "user-manual/index.md, then one page per function with snapdoczilla_write_page "
+                     "(nav_title adds it under the User manual section), then snapdoczilla_build_html.",
+    }
 
 
 def changes_since_sync(repo_path: str, area: str) -> dict[str, Any]:
@@ -334,7 +353,8 @@ def _add_to_nav(mkdocs: Path, page: str, title: str) -> bool:
     start = next((i for i, l in enumerate(lines) if l.rstrip() == "nav:"), None)
     if start is None:
         raise SnapDoczillaError("No top-level 'nav:' in documentation/mkdocs.yml; add the entry by hand.")
-    last, j = start, start + 1
+    folder = page.rsplit("/", 1)[0] + "/" if "/" in page else None
+    last, sibling, j = start, None, start + 1
     while j < len(lines):
         l = lines[j]
         if l.strip() == "":
@@ -342,10 +362,15 @@ def _add_to_nav(mkdocs: Path, page: str, title: str) -> bool:
         elif l[0] in " \t-":
             if page in re.split(r"[\s:'\"]+", l):
                 return False
+            if folder and folder in l:
+                sibling = j
             last, j = j, j + 1
         else:
             break
-    indent = re.match(r"\s*", lines[start + 1]).group(0) if start + 1 < len(lines) and lines[start + 1].strip() else "  "
+    if sibling is not None:  # next to the last entry of the same folder, e.g. inside the "User manual" section
+        last, indent = sibling, re.match(r"\s*", lines[sibling]).group(0)
+    else:
+        indent = re.match(r"\s*", lines[start + 1]).group(0) if start + 1 < len(lines) and lines[start + 1].strip() else "  "
     lines.insert(last + 1, f"{indent or '  '}- {json.dumps(title, ensure_ascii=False)}: {page}")
     mkdocs.write_bytes(nl.join(lines).encode("utf-8"))
     return True

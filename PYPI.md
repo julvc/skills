@@ -7,6 +7,9 @@ Offline **docs-as-code** for any backend and any frontend, driven by your AI age
 API map and component pages with **real code and real usage**) that anyone opens with a double click and any dev
 refreshes with one command.
 
+Working under CMMI? Install with `profile: "cmmi"` to add a process-evidence page (practice areas → repo evidence),
+DAR-style ADRs, a requirement → code → tests traceability matrix and release baselines.
+
 This MCP server gives your agent the deterministic half of that workflow. **The agent writes the docs from your
 code; the server installs, tracks what changed since the last documented commit, writes pages safely, and builds the site.**
 
@@ -51,6 +54,7 @@ Codex have them; in Claude Desktop add a filesystem server).
 |---|---|
 | `snapdoczilla_status` | Installed? Areas, commits not yet documented per area, existing pages, next ADR number, suggested next step. Start here. |
 | `snapdoczilla_install` | Scaffolds `documentation/` (templates, update script, pre-push reminder), writes `areas.conf`, downloads Mermaid once. Refuses to touch a `documentation/` it did not create. |
+| `snapdoczilla_add_manual` | Adds an end-user manual (`user-manual/` section in `nav`, manual rules: steps, exact UI labels, messages, screenshot placeholders) to an install of any profile. |
 | `snapdoczilla_get_rules` | Returns the rules the pages must follow (language, never invent, embed real code). |
 | `snapdoczilla_changes_since_sync` | Files, commits and diffstat of an area since its last documented commit, so only affected pages are updated. |
 | `snapdoczilla_write_page` | Creates or overwrites one Markdown page, confined to `documentation/source/`, and adds it to `nav`. |

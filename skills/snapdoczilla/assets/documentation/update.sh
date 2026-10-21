@@ -66,9 +66,19 @@ VPY="$DOC_DIR/.venv/Scripts/python"; [ -x "$VPY" ] || [ -f "$VPY.exe" ] || VPY="
 # --strict (never with -q: -q hides the warnings strict counts): broken links, missing snippets or pages left out of nav fail the build.
 rm -rf "$DOC_DIR/.html-new"
 (cd "$DOC_DIR" && "$VPY" -m mkdocs build --strict -f mkdocs.yml -d .html-new)
-rm -rf "$DOC_DIR/html" && mv "$DOC_DIR/.html-new" "$DOC_DIR/html"
+rm -rf "$DOC_DIR/html"
+# ponytail: retry because on Windows antivirus/indexers briefly lock freshly written files ("Permission denied")
+for _ in 1 2 3 4 5; do mv "$DOC_DIR/.html-new" "$DOC_DIR/html" 2>/dev/null && break; sleep 1; done
+[ -d "$DOC_DIR/html" ] || { echo "ERROR: could not move the new site into html/ (a file is locked: antivirus, Explorer or a browser). It is in documentation/.html-new; rerun --html-only."; exit 1; }
 
-# enable the pre-push reminder (idempotent)
-[ -d "$ROOT/.githooks" ] && git -C "$ROOT" config core.hooksPath .githooks
+# enable the pre-push reminder (idempotent), never over hooks the repo already uses (husky, .git/hooks/*)
+if [ -d "$ROOT/.githooks" ] && [ -z "$(git -C "$ROOT" config core.hooksPath || true)" ]; then
+  HOOKS="$(git -C "$ROOT" rev-parse --absolute-git-dir)/hooks"
+  if ls "$HOOKS" 2>/dev/null | grep -qv '\.sample$'; then
+    echo "NOTE: kept the existing hooks in $HOOKS. To get the docs reminder, call .githooks/pre-push from your pre-push hook."
+  else
+    git -C "$ROOT" config core.hooksPath .githooks
+  fi
+fi
 
 echo "OK. Open documentation/html/index.html and review 'git status documentation/' before committing."

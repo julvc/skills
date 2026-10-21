@@ -26,6 +26,7 @@ Workflow
 5. snapdoczilla_write_page writes inside documentation/source/ only and can add the page to nav.
 6. snapdoczilla_build_html is strict: fix every reported problem, never loosen the config.
 7. snapdoczilla_mark_synced once an area is documented up to HEAD.
+8. End-user manual wanted: snapdoczilla_add_manual, then write user-manual/ pages from the UI code.
 Never commit or push. Anything you cannot verify in the code is flagged as "to be confirmed".
 """
 
@@ -64,10 +65,20 @@ async def snapdoczilla_install(
                     "Omit for a single area covering the whole repo.")] = None,
     ui_areas: Annotated[list[str] | None, Field(
         description="Names from `areas` that contain UI components; they get component-page rules.")] = None,
+    profile: Annotated[str, Field(
+        description="'standard', or 'cmmi' to add the CMMI process-evidence page, DAR-style ADRs and traceability rules.")] = "standard",
 ) -> dict[str, Any]:
     """Install the documentation scaffold into documentation/ (templates, update script, pre-push reminder)
     and download Mermaid once (needs internet). Refuses to touch an existing documentation/ folder."""
-    return await _off_loop(core.install, repo, project_name, language, areas, ui_areas)
+    return await _off_loop(core.install, repo, project_name, language, areas, ui_areas, profile)
+
+
+@mcp.tool(name="snapdoczilla_add_manual",
+          annotations=ToolAnnotations(readOnlyHint=False, destructiveHint=False, idempotentHint=False, openWorldHint=False))
+async def snapdoczilla_add_manual(repo: Repo) -> dict[str, Any]:
+    """Add an end-user manual to an existing install (standard or cmmi profile): user-manual/ pages in nav and
+    AGENT-RULES-MANUAL.md (steps, exact UI labels, messages, screenshot placeholders). Refuses if it already exists."""
+    return await _off_loop(core.add_manual, repo)
 
 
 @mcp.tool(name="snapdoczilla_get_rules", annotations=READ_ONLY)

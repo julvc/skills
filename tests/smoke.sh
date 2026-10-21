@@ -65,4 +65,30 @@ git rev-parse HEAD > documentation/.last-sync-code
 echo '// change' >> src/sum.js; git add -A; git commit -qm change
 bash .githooks/pre-push 2>&1 | grep -q 'Docs reminder (code): 1' || fail "hook reminder"
 
+echo "6. cmmi profile"
+C="$(mktemp -d)"; git -C "$C" init -q
+bash "$HERE/skills/snapdoczilla/scripts/install.sh" "$C" "Cmmi" es nope >/dev/null 2>&1 && fail "bad profile must fail"
+bash "$HERE/skills/snapdoczilla/scripts/install.sh" "$C" "Cmmi" es cmmi >/dev/null
+grep -q '## CMMI profile' "$C/documentation/AGENT-RULES.md" || fail "cmmi rules"
+grep -q '  - Process evidence: process-evidence.md' "$C/documentation/mkdocs.yml" || fail "cmmi nav"
+printf '#!/bin/sh\n' > "$C/.git/hooks/post-commit"   # a repo with its own hooks keeps them
+(cd "$C" && build) || fail "cmmi build"
+[ -z "$(git -C "$C" config core.hooksPath || true)" ] || fail "existing hooks were overridden"
+[ -f "$C/documentation/html/process-evidence.html" ] || fail "cmmi page"
+
+echo "7. user manual on both profiles"
+bash "$HERE/skills/snapdoczilla/scripts/add-manual.sh" "$T" >/dev/null   # standard (has repo_url after nav)
+bash "$HERE/skills/snapdoczilla/scripts/add-manual.sh" "$T" >/dev/null 2>&1 && fail "second add-manual must refuse"
+grep -q 'AGENT-RULES-MANUAL.md' documentation/AGENT-RULES.md || fail "manual pointer in rules"
+sed -n '/^nav:/,/^repo_url/p' documentation/mkdocs.yml | grep -q '      - user-manual/index.md' || fail "manual nav inside nav"
+build || fail "standard + manual build"
+[ -f documentation/html/user-manual/index.html ] || fail "manual page"
+bash "$HERE/skills/snapdoczilla/scripts/add-manual.sh" "$C" >/dev/null   # cmmi (nav is last)
+grep -q '## CMMI profile' "$C/documentation/AGENT-RULES-MANUAL.md" || fail "cmmi section in manual rules"
+(cd "$C" && build) || fail "cmmi + manual build"
+[ -f "$C/documentation/html/user-manual/index.html" ] && [ -f "$C/documentation/html/process-evidence.html" ] || fail "cmmi manual pages"
+N="$(mktemp -d)"; git -C "$N" init -q
+bash "$HERE/skills/snapdoczilla/scripts/add-manual.sh" "$N" >/dev/null 2>&1 && fail "add-manual without install must fail"
+rm -rf "$C" "$N"
+
 echo "All smoke checks passed"

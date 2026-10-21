@@ -65,7 +65,8 @@ async def main() -> None:
         print("1. tools and prompt are exposed")
         names = {t.name for t in (await c.list_tools()).tools}
         expected = {"snapdoczilla_" + n for n in
-                    ("status", "install", "get_rules", "changes_since_sync", "write_page", "build_html", "mark_synced")}
+                    ("status", "install", "add_manual", "get_rules", "changes_since_sync", "write_page", "build_html",
+                     "mark_synced")}
         if names != expected:
             fail(f"tools differ: {sorted(names ^ expected)}")
         if "document_project" not in {p.name for p in (await c.list_prompts()).prompts}:
@@ -117,6 +118,18 @@ async def main() -> None:
         st = await call("snapdoczilla_status", {"repo": str(repo)})
         if st["next_adr_number"] != "0002" or "adr/0001-use-queue.md" not in st["pages"]:
             fail(f"status after write: {st}")
+
+        print("5b. user manual: rules returned, pages land inside its nav section")
+        await call("snapdoczilla_add_manual", {"repo": str(repo)})
+        await call("snapdoczilla_add_manual", {"repo": str(repo)}, ok=False)
+        rules = (await call("snapdoczilla_get_rules", {"repo": str(repo)}))["rules"]
+        if "AGENT-RULES-MANUAL.md" not in rules:
+            fail(f"manual rules missing: {list(rules)}")
+        await call("snapdoczilla_write_page", {
+            "repo": str(repo), "page": "user-manual/login.md", "content": "# Login\n", "nav_title": "Login"})
+        nav = (doc / "mkdocs.yml").read_text()
+        if "      - user-manual/index.md\n      - \"Login\": user-manual/login.md" not in nav:
+            fail(f"manual page not in its section:\n{nav}")
 
         print("6. sync markers and changes")
         ch = await call("snapdoczilla_changes_since_sync", {"repo": str(repo), "area": "back"})
