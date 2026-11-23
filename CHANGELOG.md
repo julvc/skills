@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+**Token control for big repos.**
+- `scripts/estimate.sh <repo> [paths]` prints files and ~tokens per area; the skill shows it before reading code.
+- Install now generates an **MVP** (entrypoints, routes, schemas, 2–3 pages, a *Not yet documented* list); expansion is per folder/area on request.
+- `update.sh`: estimates the diff and asks above `DOCS_MAX_TOKENS` (default 50000); non-interactive runs skip the area unless `--yes`. `--full` reads a whole area on its first run.
+
 ## 1.2.0
 
 **New: user manual (flow D).** Writes an end-user manual from the real UI code, on any profile (`standard` or `cmmi`):

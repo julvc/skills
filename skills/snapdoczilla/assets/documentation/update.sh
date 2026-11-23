@@ -4,6 +4,8 @@
 #   ./documentation/update.sh               -> every area in areas.conf: agent + HTML
 #   ./documentation/update.sh --<area>      -> one area only (e.g. --front)
 #   ./documentation/update.sh --html-only   -> HTML only (after editing .md by hand; no agent)
+#   --full   first run of an area: read all of it (default is a small MVP)
+#   --yes    accept the token cost without asking (guard limit: DOCS_MAX_TOKENS, default 50000)
 # Agent: Claude Code by default. Another one: DOCS_LLM="codex exec --full-auto" | "opencode run" | "gemini --yolo -p"
 # (any non-interactive command that takes the prompt as its last argument).
 set -euo pipefail
@@ -18,9 +20,11 @@ LINES="$(grep -v -E '^[[:space:]]*(#|$)' "$CONF")"
 ALL="$(echo "$LINES" | cut -d= -f1)"
 path_of() { echo "$LINES" | grep -E "^$1=" | head -1 | cut -d= -f2-; }
 
-AREAS="$ALL"; HTML_ONLY=0
+AREAS="$ALL"; HTML_ONLY=0; FULL=0; YES=0
 for a in "$@"; do
   if [ "$a" = "--html-only" ]; then HTML_ONLY=1
+  elif [ "$a" = "--full" ]; then FULL=1
+  elif [ "$a" = "--yes" ]; then YES=1
   elif echo "$ALL" | grep -qx -- "${a#--}"; then AREAS="${a#--}"
   else echo "Unknown option: $a (areas: $(echo $ALL | tr '\n' ' '), --html-only)"; exit 1
   fi
@@ -36,10 +40,22 @@ if [ "$HTML_ONLY" -eq 0 ]; then
     RULES="documentation/AGENT-RULES.md"
     [ -f "$DOC_DIR/AGENT-RULES-$AREA.md" ] && RULES="$RULES and documentation/AGENT-RULES-$AREA.md"
     BASE="$(cat "$STATE" 2>/dev/null || echo "")"
+    # Token guard: estimate (~4 bytes/token) what the agent may have to read; above DOCS_MAX_TOKENS ask first.
     if [ -n "$BASE" ]; then
+      BYTES="$(git -C "$ROOT" diff "$BASE..HEAD" -- "$AREA_PATH" ':!documentation' | wc -c)"
       SCOPE="Changes since commit $BASE: run 'git diff $BASE..HEAD --stat -- $AREA_PATH :!documentation' and read only the relevant files. Update only the affected pages."
-    else
+    elif [ "$FULL" -eq 1 ]; then
+      BYTES="$(git -C "$ROOT" ls-files -z -- "$AREA_PATH" ':!documentation' | (cd "$ROOT" && xargs -0 -r cat) | wc -c)"
       SCOPE="First generation for this area: analyze '$AREA_PATH' fully."
+    else
+      BYTES=0 # MVP reads a bounded set of files
+      SCOPE="MVP generation for this area: read only entrypoints, routes/menus and schemas (about 30 files at most), write the architecture overview and 2-3 representative pages, and list what is not covered yet under 'Not yet documented' in index.md. Do not read the whole area."
+    fi
+    TOK=$((BYTES / 4)); MAX="${DOCS_MAX_TOKENS:-50000}"
+    if [ "$TOK" -gt "$MAX" ] && [ "$YES" -eq 0 ]; then
+      echo ">> Area $AREA: ~$((TOK / 1000))k tokens to read (limit $((MAX / 1000))k, set DOCS_MAX_TOKENS)."
+      if [ -t 0 ]; then read -r -p "   Continue? [y/N] " ANS; else ANS=n; fi
+      [ "$ANS" = "y" ] || { echo "   Skipped $AREA (rerun with --yes to accept the cost)."; continue; }
     fi
     PROMPT="Follow the rules in $RULES and update documentation/source. Area: $AREA ($AREA_PATH). $SCOPE Edit only documentation/source/ and the nav of documentation/mkdocs.yml."
     echo ">> Documenting area: $AREA ($AREA_PATH)"
