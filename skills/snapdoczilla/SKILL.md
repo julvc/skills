@@ -56,6 +56,7 @@ If the repo already has a `documentation/` folder that was **not** made by SnapD
 
 1. **Check prerequisites** — report what's missing, never install anything global: `git` (must be a git repo), `python3`/`python`, `bash` (on Windows it ships with Git for Windows). An agent CLI (`claude`, `codex`, `opencode`…) is only needed for one-command updates later; `--html-only` works without it.
 2. **Detect areas.** Look for `backend/`, `frontend/`, `api/`, `web/`, `apps/*`, `packages/*`, `src/`. One block → a single area `code=.`. Clearly separate parts → one area each (`back=backend/`, `front=frontend/`). Ask only if the split is not evident.
+   **Then estimate the cost** and tell the user before reading any code: `bash "$SKILL_DIR/scripts/estimate.sh" "<repo-root>" <area paths…>`. Default to the **MVP** (step 8); offer the full pass only if they ask. If a full pass is above ~50k tokens, show the figure and get an explicit OK.
 3. **Pick the docs language:** the language the user is writing in, unless they ask for another (`en`, `es`, …).
 4. **Pick the profile:** `standard` (default) or `cmmi` when the user or their organization works under CMMI (mentions CMMI, appraisal, maturity level, process evidence, traceability). See **CMMI profile** below.
 5. **Run the installer** (copies templates, downloads Mermaid once, adds `.gitignore`/`.gitattributes` lines; refuses to overwrite an existing install):
@@ -64,7 +65,7 @@ If the repo already has a `documentation/` folder that was **not** made by SnapD
    ```
 6. **Write `documentation/areas.conf`** with the detected areas (`name=path`).
 7. **UI areas:** copy `documentation/AGENT-RULES-COMPONENTS.md` to `documentation/AGENT-RULES-<area>.md` (e.g. `AGENT-RULES-front.md`); per-area rules are picked up automatically. No UI area → delete the template.
-8. **Generate the first content** in `documentation/source/`, following `AGENT-RULES.md` (and each area's rules) and the Scope table above. For UI areas, write 2–3 component pages for representative components (ask which, or pick the most reused). Read real code; don't invent. Add every page to `nav:` in `mkdocs.yml`.
+8. **Generate the MVP** in `documentation/source/`, following `AGENT-RULES.md` (and each area's rules) and the Scope table above: read only entrypoints, routes/menus and schemas (~30 files at most; list files with `git ls-files`/`grep`, don't open whole trees), write the architecture overview and, for UI areas, 2–3 component pages for representative components (ask which, or pick the most reused). Add a **Not yet documented** list to `index.md` (modules/folders skipped). Read real code; don't invent. The user then picks what to expand, one folder or area at a time (flow C, generalised), after seeing its estimate. Add every page to `nav:` in `mkdocs.yml`.
 9. **Existing docs** (md, docx, pdf) are context for the *why*, never a substitute for reading code. Convert docx/pdf to Markdown before reading, and never copy secrets or tokens they may contain.
 10. **Mark sync:** for each area, `git rev-parse HEAD > documentation/.last-sync-<area>`.
 11. **Build and verify:**
@@ -87,7 +88,8 @@ If the repo already has a `documentation/` folder that was **not** made by SnapD
   | Other | any non-interactive command that takes the prompt as its last argument |
 
   Only the Claude default restricts writable paths; with other agents rely on their sandbox and review `git diff`.
-- **Inside this session (any agent, incl. Antigravity):** read `AGENT-RULES*.md`, run `git diff <hash in .last-sync-<area>>..HEAD -- <area path>`, edit only the affected pages, run `bash documentation/update.sh --html-only`, then `git rev-parse HEAD > documentation/.last-sync-<area>`.
+- **Token guard:** `update.sh` estimates the diff (~4 bytes/token) and asks before going over `DOCS_MAX_TOKENS` (default 50000); non-interactive runs skip that area unless `--yes`. First run of an area is an MVP; `--full` reads everything (also guarded).
+- **Inside this session (any agent, incl. Antigravity):** check `git diff <hash> --stat` first; if it is big (many files, or hundreds of KB), tell the user the rough cost and get an OK. Then read `AGENT-RULES*.md`, run `git diff <hash in .last-sync-<area>>..HEAD -- <area path>`, edit only the affected pages, run `bash documentation/update.sh --html-only`, then `git rev-parse HEAD > documentation/.last-sync-<area>`.
 - Check line-range snippets (`path:START:END`) when their source file changed: they don't fail when they drift, they just show the wrong lines.
 
 ## C. Component page
