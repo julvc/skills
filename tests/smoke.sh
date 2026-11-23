@@ -91,4 +91,22 @@ N="$(mktemp -d)"; git -C "$N" init -q
 bash "$HERE/skills/snapdoczilla/scripts/add-manual.sh" "$N" >/dev/null 2>&1 && fail "add-manual without install must fail"
 rm -rf "$C" "$N"
 
+echo "8. token control: repo map omits tests, update sends changed files only"
+mkdir -p src/__tests__; echo 'x' > src/__tests__/sum.js; echo 'export const sub = 1;' > src/sub.js
+git add -A >/dev/null; git commit -qm more
+MAP="$(bash documentation/repomap.sh . src)"   # captured: grep -q on a pipe would SIGPIPE the producer under pipefail
+echo "$MAP" | grep -q 'omitted: .*__tests__' || fail "repomap must list omitted tests"
+echo "$MAP" | grep -q 'src/sum.js' || fail "repomap must list analyzable files"
+mkdir -p bin; printf '#!/bin/sh
+echo "$@"
+' > bin/claude; chmod +x bin/claude
+git rev-parse HEAD~1 > documentation/.last-sync-code
+OUT="$(PATH="$PWD/bin:$PATH" bash documentation/update.sh --code 2>&1 || true)"
+echo "$OUT" | grep -q 'src/sub.js' || fail "prompt must list the changed file"
+echo "$OUT" | grep -q '__tests__' && fail "tests must stay out of the prompt"
+git rev-parse HEAD > documentation/.last-sync-code
+echo 'x' >> src/__tests__/sum.js; git commit -qam tests-only
+OUT="$(PATH="$PWD/bin:$PATH" bash documentation/update.sh --code 2>&1 || true)"
+echo "$OUT" | grep -q 'no analyzable changes' || fail "tests-only change must skip the agent"
+
 echo "All smoke checks passed"

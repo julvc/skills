@@ -3,7 +3,9 @@
 ## Unreleased
 
 **Token control for big repos.**
-- `scripts/estimate.sh <repo> [paths]` prints files and ~tokens per area; the skill shows it before reading code.
+- `repomap.sh <repo> [paths]` (no code read): ~tokens per area, what `ignore.conf` omits, top folders, manifests, entrypoint candidates. Shown to the user before any reading and fed to the agent.
+- `ignore.conf`: tests, migrations, generated code and binaries are left out of estimates, diffs and prompts (the dev owns the tests); `index.md` carries an *Omitted from analysis* disclaimer.
+- Update sends only the changed files and the pages that embed them; nothing analyzable → no agent call.
 - Install now generates an **MVP** (entrypoints, routes, schemas, 2–3 pages, a *Not yet documented* list); expansion is per folder/area on request.
 - `update.sh`: estimates the diff and asks above `DOCS_MAX_TOKENS` (default 50000); non-interactive runs skip the area unless `--yes`. `--full` reads a whole area on its first run.
 

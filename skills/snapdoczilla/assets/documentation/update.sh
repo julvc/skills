@@ -20,6 +20,9 @@ LINES="$(grep -v -E '^[[:space:]]*(#|$)' "$CONF")"
 ALL="$(echo "$LINES" | cut -d= -f1)"
 path_of() { echo "$LINES" | grep -E "^$1=" | head -1 | cut -d= -f2-; }
 
+EX=(":!documentation"); if [ -f "$DOC_DIR/ignore.conf" ]; then
+  while IFS= read -r l; do EX+=(":!$l"); done < <(grep -vE '^[[:space:]]*(#|$)' "$DOC_DIR/ignore.conf")
+fi
 AREAS="$ALL"; HTML_ONLY=0; FULL=0; YES=0
 for a in "$@"; do
   if [ "$a" = "--html-only" ]; then HTML_ONLY=1
@@ -41,15 +44,26 @@ if [ "$HTML_ONLY" -eq 0 ]; then
     [ -f "$DOC_DIR/AGENT-RULES-$AREA.md" ] && RULES="$RULES and documentation/AGENT-RULES-$AREA.md"
     BASE="$(cat "$STATE" 2>/dev/null || echo "")"
     # Token guard: estimate (~4 bytes/token) what the agent may have to read; above DOCS_MAX_TOKENS ask first.
+    # ignore.conf (tests, migrations, generated...) is left out of every estimate, diff and prompt.
+    MAP="$(bash "$DOC_DIR/repomap.sh" "$ROOT" "$AREA_PATH" | head -80)"
     if [ -n "$BASE" ]; then
-      BYTES="$(git -C "$ROOT" diff "$BASE..HEAD" -- "$AREA_PATH" ':!documentation' | wc -c)"
-      SCOPE="Changes since commit $BASE: run 'git diff $BASE..HEAD --stat -- $AREA_PATH :!documentation' and read only the relevant files. Update only the affected pages."
+      BYTES="$(git -C "$ROOT" diff "$BASE..HEAD" -- "$AREA_PATH" ':!documentation' "${EX[@]}" | wc -c)"
+      FILES="$(git -C "$ROOT" diff --name-only "$BASE..HEAD" -- "$AREA_PATH" ':!documentation' "${EX[@]}" | head -200)"
+      if [ -z "$FILES" ]; then echo ">> Area $AREA: no analyzable changes since $BASE, skipped."; git -C "$ROOT" rev-parse HEAD > "$STATE"; continue; fi
+      # pages that already embed a changed file: the agent starts there instead of scanning source/
+      PAGES="$(echo "$FILES" | while read -r f; do [ -n "$f" ] && (cd "$ROOT" && grep -rlF -- "$f" documentation/source 2>/dev/null) || true; done | sort -u)"
+      SCOPE="Changed files since $BASE (tests, migrations and generated code are omitted on purpose):
+$FILES
+Pages that embed them (update these first): ${PAGES:-none, decide if a new page is needed}.
+Read only these files, use 'git diff $BASE..HEAD -- <file>' for details, and update only the affected pages."
     elif [ "$FULL" -eq 1 ]; then
-      BYTES="$(git -C "$ROOT" ls-files -z -- "$AREA_PATH" ':!documentation' | (cd "$ROOT" && xargs -0 -r cat) | wc -c)"
-      SCOPE="First generation for this area: analyze '$AREA_PATH' fully."
+      BYTES="$(git -C "$ROOT" ls-files -z -- "$AREA_PATH" ':!documentation' "${EX[@]}" | (cd "$ROOT" && xargs -0 -r cat) | wc -c)"
+      SCOPE="First generation for this area: analyze '$AREA_PATH' fully. Repo map (no code read yet):
+$MAP"
     else
       BYTES=0 # MVP reads a bounded set of files
-      SCOPE="MVP generation for this area: read only entrypoints, routes/menus and schemas (about 30 files at most), write the architecture overview and 2-3 representative pages, and list what is not covered yet under 'Not yet documented' in index.md. Do not read the whole area."
+      SCOPE="MVP generation for this area: start from this repo map, read only entrypoints, routes/menus and schemas (about 30 files at most), write the architecture overview and 2-3 representative pages, and list what is not covered yet under 'Not yet documented' in index.md. Do not read the whole area.
+$MAP"
     fi
     TOK=$((BYTES / 4)); MAX="${DOCS_MAX_TOKENS:-50000}"
     if [ "$TOK" -gt "$MAX" ] && [ "$YES" -eq 0 ]; then
@@ -57,7 +71,8 @@ if [ "$HTML_ONLY" -eq 0 ]; then
       if [ -t 0 ]; then read -r -p "   Continue? [y/N] " ANS; else ANS=n; fi
       [ "$ANS" = "y" ] || { echo "   Skipped $AREA (rerun with --yes to accept the cost)."; continue; }
     fi
-    PROMPT="Follow the rules in $RULES and update documentation/source. Area: $AREA ($AREA_PATH). $SCOPE Edit only documentation/source/ and the nav of documentation/mkdocs.yml."
+    PROMPT="Follow the rules in $RULES and update documentation/source. Area: $AREA ($AREA_PATH). $SCOPE
+Edit only documentation/source/ and the nav of documentation/mkdocs.yml."
     echo ">> Documenting area: $AREA ($AREA_PATH)"
     if [ -z "${DOCS_LLM:-}" ]; then
       # Claude Code: tools restricted to documentation/source/

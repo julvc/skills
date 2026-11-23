@@ -11,6 +11,8 @@
   - `architecture.md`: layers, integrations and main flows, with Mermaid.
   - `api.md`: only if the project exposes an API; read the real routes/controllers.
   - `adr/NNNN-title.md`: one decision per file (Context, Decision, Consequences). New ADRs only for real architecture decisions (new library, database change, new pattern).
+- **Omitted on purpose:** files matching `documentation/ignore.conf` (tests, migrations, generated code, binaries) are never read or documented; tests belong to the dev (often TDD). Keep this disclaimer in `index.md`, listing the patterns that actually matched: `Omitted from analysis: <patterns>. Tests, migrations and generated code are not documented here.`
+- Start from the repo map (`bash documentation/repomap.sh .. <area path>`); open files only when a page needs them.
 - Incremental updates: change only the pages affected by the diff; don't rewrite what is still valid.
 - Keep the last line of `index.md` as `Last sync: <short hash> (<date>)` (translated to the documentation language).
 - Code areas and their paths live in `areas.conf`.
